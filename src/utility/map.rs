@@ -1,4 +1,4 @@
-use std::{fs::File, io::{BufReader, BufRead}, fmt::Display};
+use std::{fs::File, io::{BufReader, BufRead}, fmt::Display, error::Error};
 use rand::{thread_rng, seq::SliceRandom};
 use crate::utility::city::City;
 
@@ -13,9 +13,8 @@ impl Map {
         Self { cities: vec![] }
     }
 
-    pub fn load_map(&mut self, file_name: String) -> Result<(), std::io::Error> {
-        let file = File::open(file_name.clone())
-            .expect(&format!("File not found: {}", file_name));
+    pub fn load_map(&mut self, file_name: String) -> Result<(), Box<dyn Error>> {
+        let file = File::open(file_name.clone())?;
         
         let reader = BufReader::new(file);
 

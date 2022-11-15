@@ -1,22 +1,43 @@
+use crate::{algorithms::basic_genetic::BasicGenetic, utility::population::Population, utility::agent::Agent};
+use itertools::Itertools;
 use utility::map::Map;
+use std::collections::HashMap;
 
-use crate::utility::population::Population;
-
+pub mod algorithms;
 pub mod utility;
 fn main() {
     let file_name = "datasets/Berlin52/Berlin52.tsp".to_string();
 
     let mut map = Map::new();
-    map.load_map(file_name).unwrap();
+    match map.load_map(file_name) {
+        Ok(()) => (),
+        Err(e) => {
+            println!("Problem with opening map file: {}", e);
+            return;
+        }
+    }
 
-    println!("Map: {}", map);
+    let population_size = 1000;
+    let num_generations = 1000;
+    let mut population = Population::new(population_size, &map);
+    let mut genetic_algo = BasicGenetic::new(3, &mut population, 0.65, 0.1);
 
-    println!("Randomly Generated path: {:?}", map.random_path());
+    let mut generation: HashMap<String, Agent> = HashMap::new();
 
-    println!("Sample city in map: {}", map.cities[0]);
+    for i in 0..num_generations {
+        println!("------Generation {} ------", i+1);
+        println!("Selection");
+        genetic_algo.selection(&map);
+        println!("Crossover");
+        genetic_algo.crossover(&map);
+        println!("Mutation");
+        genetic_algo.mutation(&map);
+        println!("Replacement");
+        generation.insert(format!("Generation {}", i+1), genetic_algo.replacement(&map));
+    }
 
-    let pop = Population::new(10, &map);
-    println!("Randomly generated population: {}", pop);
+    for (k, v) in generation.iter().sorted_by_key(|x| x.0) {
+        println!("{}\n{}\n", k, v);
+    }
 
-    println!("Sample agent in population: {}", pop.agents[0]);
 }

@@ -16,6 +16,10 @@ impl Agent {
         let (path, distance) = map.random_path();
         Self { path: path, distance: distance }
     }
+
+    pub fn fitness_score(&self) -> f64 {
+        1.0/self.distance
+    }
 }
 
 impl Display for Agent {
