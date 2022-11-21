@@ -158,6 +158,7 @@ impl<'a> BasicGenetic<'a> {
         
         let fittest_agent = self.fittest.clone().unwrap();
         println!("Fittest individual: {}", fittest_agent.fitness_score());
+        println!("Path length: {}", fittest_agent.distance);
 
         let city_path = fittest_agent.clone().path;
         println!("Fittest route: {:?}", city_path);
