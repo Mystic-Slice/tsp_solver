@@ -2,12 +2,16 @@ use std::fmt::Display;
 use crate::utility::{map::Map, agent::Agent};
 
 #[derive(Clone, Debug)]
-pub struct Population {
+pub struct Population<T>
+where T: Agent
+{
     pub population_size: i32,
-    pub agents: Vec<Agent>,
+    pub agents: Vec<T>,
 }
 
-impl Population {
+impl<T> Population<T>
+where T: Agent
+{
 
     pub fn new(population_size: i32, map: &Map) -> Self {
         let mut pop = Self { 
@@ -20,12 +24,14 @@ impl Population {
 
     pub fn initialize_agents(&mut self, map: &Map) {
         while (self.agents.len() as i32) < self.population_size {
-            self.agents.push(Agent::new_random(map))
+            self.agents.push(T::new_random(map))
         }
     }
 }
 
-impl Display for Population {
+impl<T> Display for Population<T>
+where T: Agent
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Population size: {}\n", self.population_size)?;
 

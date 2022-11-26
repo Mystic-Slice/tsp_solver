@@ -1,19 +1,57 @@
 use rand::{thread_rng, seq::IteratorRandom, Rng};
+use std::fmt::Display;
 
-use crate::utility::{population::Population, agent::Agent, map::Map};
+use crate::utility::{population::Population, map::Map, agent::Agent};
+
+#[derive(Clone, Debug)]
+pub struct BasicAgent {
+    pub path: Vec<i32>,
+    pub distance: f64,
+}
+
+impl BasicAgent {
+    pub fn new(path: Vec<i32>, distance: f64) -> Self {
+        Self { path: path, distance: distance }
+    }
+}
+
+impl Agent for BasicAgent {
+    fn fitness_score(&self) -> f64 {
+        1.0/self.distance
+    }
+
+    fn path(&self) -> Vec<i32> {
+        self.path.clone()
+    }
+
+    fn distance(&self) -> f64 {
+        self.distance
+    }
+
+    fn new_random(map: &Map) -> Self {
+        let (path, distance) = map.random_path();
+        Self { path: path, distance: distance }
+    }
+}
+
+impl Display for BasicAgent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Path distance: {}, Path: {:?}", self.distance, self.path)
+    }
+}
 
 pub struct BasicGenetic<'a> {
     pub tournament_size: i32,
-    pub population: &'a mut Population,
+    pub population: &'a mut Population<BasicAgent>,
     pub cross_prob: f64,
     pub mut_prob: f64,
-    pub parents: Vec<Agent>, // Temp variable -> find a better solution
-    pub offspring: Vec<Agent>, // Temp variable
-    pub fittest: Option<Agent>, // Temp variable
+    pub parents: Vec<BasicAgent>, // Temp variable -> find a better solution
+    pub offspring: Vec<BasicAgent>, // Temp variable
+    pub fittest: Option<BasicAgent>, // Temp variable
 }
 
 impl<'a> BasicGenetic<'a> {
-    pub fn new(tournament_size: i32, population: &'a mut Population, cross_prob: f64, mut_prob: f64) -> Self {
+    pub fn new(tournament_size: i32, population: &'a mut Population<BasicAgent>, cross_prob: f64, mut_prob: f64) -> Self {
         Self {
             tournament_size: tournament_size,
             population: population,
@@ -38,7 +76,7 @@ impl<'a> BasicGenetic<'a> {
 
             let best_path = best_agent.unwrap().path.clone();
             let best_distance = map.path_distance(&best_path);
-            self.parents.push(Agent::new(best_path, best_distance));
+            self.parents.push(BasicAgent::new(best_path, best_distance));
         }
     }
 
@@ -97,16 +135,16 @@ impl<'a> BasicGenetic<'a> {
                     j += 1
                 }
                 let c_distance = map.path_distance(&c_path);
-                self.offspring.push(Agent::new(c_path, c_distance));
+                self.offspring.push(BasicAgent::new(c_path, c_distance));
 
                 let d_distance = map.path_distance(&d_path);
-                self.offspring.push(Agent::new(d_path, d_distance));                
+                self.offspring.push(BasicAgent::new(d_path, d_distance));                
             } else {
                 let a_distance = map.path_distance(&a_path);
-                self.offspring.push(Agent::new(a_path, a_distance));
+                self.offspring.push(BasicAgent::new(a_path, a_distance));
 
                 let b_distance = map.path_distance(&b_path);
-                self.offspring.push(Agent::new(b_path, b_distance));    
+                self.offspring.push(BasicAgent::new(b_path, b_distance));    
             }
             self.parents.remove(index);
             self.parents.remove(0);
@@ -133,7 +171,7 @@ impl<'a> BasicGenetic<'a> {
         }
     }
 
-    pub fn replacement(&mut self, map: &Map) -> Agent {
+    pub fn replacement(&mut self, map: &Map) -> BasicAgent {
         self.population.agents = self.offspring.clone();
         
         for agent in &self.population.agents {

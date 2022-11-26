@@ -1,4 +1,4 @@
-use crate::{algorithms::{basic_genetic::BasicGenetic, two_opt::two_opt}, utility::population::Population, utility::agent::Agent};
+use crate::{algorithms::{basic_genetic::{ BasicGenetic, BasicAgent }, two_opt::two_opt}, utility::{population::Population, agent::Agent}};
 use utility::map::Map;
 use std::{collections::HashMap, env, fs};
 
@@ -25,14 +25,14 @@ fn main() {
 
     let population_size = 1000;
     let num_generations = 1000;
-    let mut population = Population::new(population_size, &map);
+    let mut population = Population::<BasicAgent>::new(population_size, &map);
     let mut genetic_algo = BasicGenetic::new(3, &mut population, 0.65, 0.1);
 
-    let mut generation: HashMap<i32, Agent> = HashMap::new();
+    let mut generation: HashMap<i32, BasicAgent> = HashMap::new();
 
     let mut best_fitness = 0f64;
     let mut unchanged_for_iterations = 0;
-    let mut best_agent = Agent::new_random(&map);
+    let mut best_agent = BasicAgent::new_random(&map);
 
     for i in 0..num_generations {
         println!("------Generation {} ------", i+1);
